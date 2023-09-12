@@ -16,6 +16,13 @@ const userSchema = new Schema({
   },
 });
 
-const User = mongoose.model('User', userSchema);
+userSchema.statics.findAll = function () {
+  return this.find({});
+};
 
-module.exports = User;
+userSchema.statics.create = function (payload) {
+  const user = new this(payload);
+  return user.save();
+};
+
+module.exports = mongoose.model('User', userSchema);
