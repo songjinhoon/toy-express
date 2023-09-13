@@ -2,7 +2,13 @@ const express = require('express');
 const User = require('../model/user');
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.post('', (req, res, next) => {
+  User.create(req.body)
+    .then(() => res.status(201).send())
+    .catch((error) => res.status(500).send(error));
+});
+
+router.get('', (req, res, next) => {
   User.findAll()
     .then((users) => {
       res.status(200).send(users);
@@ -25,10 +31,16 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-router.post('', (req, res, next) => {
-  User.create(req.body)
-    .then((todo) => res.send(todo))
-    .catch((err) => res.status(500).send(err));
+router.put('/:id', (req, res) => {
+  User.update(req.params.id, req.body)
+    .then(res.status(204).send())
+    .catch((error) => res.status(500).send(error));
+});
+
+router.delete('/:id', (req, res) => {
+  User.delete(req.params.id)
+    .then(() => res.status(204).send())
+    .catch((error) => res.status(500).send(error));
 });
 
 module.exports = router;
