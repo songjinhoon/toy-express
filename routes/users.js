@@ -1,8 +1,25 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const User = require('../model/user');
 const router = express.Router();
 
-router.post('', (req, res, next) => {
+router.post('/sign-in', (req, res) => {
+  const { username, password } = req.body;
+  User.findByUsername(username)
+    .then((user) => {
+      if (!user) {
+        res.status(401).send();
+      }
+      if (!user.isEqualPassword(password)) {
+        res.status(401).send();
+      }
+      res.status(200).send(user);
+    }).catch(() => {
+  });
+});
+
+router.post('/sign-up', (req, res, next) => {
+  // req.body.password = bcrypt.hash(req.body.password, 10);
   User.create(req.body)
     .then(() => res.status(201).send())
     .catch((error) => res.status(500).send(error));
