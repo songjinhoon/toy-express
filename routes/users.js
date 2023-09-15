@@ -1,27 +1,26 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
 const User = require('../model/user');
 const router = express.Router();
 
 router.post('/sign-in', (req, res) => {
-  const { username, password } = req.body;
-  User.findByUsername(username)
+  User.findByUsername(req.body.username)
     .then((user) => {
       if (!user) {
         res.status(401).send();
       }
-      if (!user.isEqualPassword(password)) {
+      if (!user.isEqualPassword(req.body.password)) {
         res.status(401).send();
       }
       res.status(200).send(user);
-    }).catch(() => {
-  });
+    })
+    .catch(() => {});
 });
 
 router.post('/sign-up', (req, res, next) => {
-  // req.body.password = bcrypt.hash(req.body.password, 10);
   User.create(req.body)
-    .then(() => res.status(201).send())
+    .then(() => {
+      res.status(201).send();
+    })
     .catch((error) => res.status(500).send(error));
 });
 
