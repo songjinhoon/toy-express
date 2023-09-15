@@ -21,7 +21,10 @@ router.post('/sign-in', (req, res) => {
         .status(200)
         .send(user);
     })
-    .catch(() => {});
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send(error);
+    });
 });
 
 router.post('/sign-up', (req, res, next) => {
