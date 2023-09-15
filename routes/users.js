@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../model/user');
+const checkUser = require('../utils/checkUser');
 const router = express.Router();
 
 router.post('/sign-in', (req, res) => {
@@ -11,7 +12,14 @@ router.post('/sign-in', (req, res) => {
       if (!user.isEqualPassword(req.body.password)) {
         res.status(401).send();
       }
-      res.status(200).send(user);
+      const token = user.generateToken();
+      res
+        .cookie('access_token', token, {
+          maxAge: 1000 * 60 * 60 * 24, // 하루
+          httpOnly: true,
+        })
+        .status(200)
+        .send(user);
     })
     .catch(() => {});
 });
@@ -24,7 +32,7 @@ router.post('/sign-up', (req, res, next) => {
     .catch((error) => res.status(500).send(error));
 });
 
-router.get('', (req, res, next) => {
+router.get('', checkUser, (req, res, next) => {
   User.findAll()
     .then((users) => {
       res.status(200).send(users);
@@ -34,7 +42,7 @@ router.get('', (req, res, next) => {
     });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', checkUser, (req, res, next) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
@@ -47,13 +55,13 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', checkUser, (req, res) => {
   User.update(req.params.id, req.body)
     .then(res.status(204).send())
     .catch((error) => res.status(500).send(error));
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', checkUser, (req, res) => {
   User.delete(req.params.id)
     .then(() => res.status(204).send())
     .catch((error) => res.status(500).send(error));

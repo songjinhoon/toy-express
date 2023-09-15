@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
@@ -44,6 +45,19 @@ userSchema.statics.delete = function (id) {
 
 userSchema.methods.isEqualPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
+};
+
+userSchema.methods.generateToken = function () {
+  const token = jwt.sign(
+    {
+      _id: this.id,
+      username: this.username,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '10m' },
+    // { expiresIn: '1d' },
+  );
+  return token;
 };
 
 module.exports = mongoose.model('User', userSchema);
