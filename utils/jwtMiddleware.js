@@ -3,8 +3,11 @@ const jwt = require('jsonwebtoken');
 const jwtMiddleware = (req, res, next) => {
   try {
     req.state = {};
-    const token = req.cookies['access_token'];
-    console.log('[debug::token] ==> ' + token);
+    // const token = req.cookies['access_token'];
+
+    const token = req.headers.authorization?.substring(7) || '';
+
+    console.log('[debug::accessToken] ==> ' + token);
 
     if (!token) {
       return next();

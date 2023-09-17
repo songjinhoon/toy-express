@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../model/user');
 const checkUser = require('../utils/checkUser');
+const { createAccessToken, createRefreshToken } = require('../utils/CustomJwt');
 const router = express.Router();
 
 router.post('/sign-in', (req, res) => {
@@ -12,14 +13,22 @@ router.post('/sign-in', (req, res) => {
       if (!user.isEqualPassword(req.body.password)) {
         res.status(401).send();
       }
-      const token = user.generateToken();
-      res
-        .cookie('access_token', token, {
-          maxAge: 1000 * 60 * 60 * 24, // 하루
-          httpOnly: true,
-        })
-        .status(200)
-        .send(user);
+      const refreshToken = createRefreshToken();
+      User.update(user._id, { token: refreshToken }).then((user) => {
+        res
+          .cookie('access_token', createAccessToken(user), {
+            maxAge: 1000 * 60 * 60 * 24,
+          })
+          .cookie('refresh_token', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+            httpOnly: true,
+          })
+          .status(200)
+          .send({
+            id: user._id,
+            username: user.username,
+          });
+      });
     })
     .catch((error) => {
       console.error(error);
@@ -35,7 +44,7 @@ router.post('/sign-up', (req, res, next) => {
     .catch((error) => res.status(500).send(error));
 });
 
-router.get('', checkUser, (req, res, next) => {
+router.get('', (req, res, next) => {
   User.findAll()
     .then((users) => {
       res.status(200).send(users);
@@ -64,7 +73,7 @@ router.put('/:id', checkUser, (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-router.delete('/:id', checkUser, (req, res) => {
+router.delete('/:id', (req, res) => {
   User.delete(req.params.id)
     .then(() => res.status(204).send())
     .catch((error) => res.status(500).send(error));
