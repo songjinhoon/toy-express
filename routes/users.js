@@ -1,7 +1,11 @@
 const express = require('express');
 const User = require('../model/user');
 const checkUser = require('../utils/checkUser');
-const { createAccessToken, createRefreshToken } = require('../utils/CustomJwt');
+const {
+  createAccessToken,
+  createRefreshToken,
+  isValidToken,
+} = require('../utils/CustomJwt');
 const router = express.Router();
 
 router.post('/sign-in', (req, res) => {
@@ -47,11 +51,21 @@ router.post('/sign-up', (req, res, next) => {
 router.get('/:id/refresh', (req, res, next) => {
   User.findById(req.params.id)
     .then((user) => {
-      if (user.token === req.cookies.refresh_token) {
-        // 토큰 탈취
+      if (user.token !== req.cookies.refresh_token) {
+        // refreshToken 탈취
         res.status(401).send('invalid token');
+      } else if (isValidToken(user.token)) {
+        // accessToken 재생성
+        res
+          .cookie('access_token', createAccessToken(user), {
+            maxAge: 1000 * 60 * 60 * 24,
+          })
+          .status(200)
+          .send();
+      } else {
+        // refreshToken 만료
+        res.status(401).send('expired token');
       }
-      res.send();
     })
     .catch((error) => {
       console.error(error);

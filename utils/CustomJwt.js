@@ -19,4 +19,15 @@ const createRefreshToken = () => {
   return token;
 };
 
-module.exports = { createAccessToken, createRefreshToken };
+const isValidToken = (token) => {
+  try {
+    const data = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(data);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+module.exports = { createAccessToken, createRefreshToken, isValidToken };
