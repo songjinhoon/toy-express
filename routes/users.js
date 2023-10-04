@@ -44,7 +44,27 @@ router.post('/sign-up', (req, res, next) => {
     .catch((error) => res.status(500).send(error));
 });
 
-router.get('', (req, res, next) => {
+router.get('/:id/refresh', (req, res, next) => {
+  User.findById(req.params.id)
+    .then((user) => {
+      if (user.token === req.cookies.refresh_token) {
+        // 토큰 탈취
+        res.status(401).send('invalid token');
+      }
+      res.send();
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send(error);
+    });
+});
+
+router.get('/:id/logout', (req, res, next) => {
+  console.log('여기까지 정상 동작 체크가 필요하다');
+  res.send();
+});
+
+router.get('', checkUser, (req, res, next) => {
   User.findAll()
     .then((users) => {
       res.status(200).send(users);

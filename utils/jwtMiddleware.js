@@ -1,20 +1,20 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const jwtMiddleware = (req, res, next) => {
   try {
     req.state = {};
     // const token = req.cookies['access_token'];
 
-    const token = req.headers.authorization?.substring(7) || '';
+    const token = req.headers.authorization?.substring(7) || "";
 
-    console.log('[debug::accessToken] ==> ' + token);
+    console.log("[accessToken] ==> " + token);
 
     if (!token) {
       return next();
     }
 
     const user = {
-      ...jwt.verify(token, process.env.JWT_SECRET),
+      ...jwt.verify(token, process.env.JWT_SECRET)
     };
     req.state = { user };
 
@@ -26,3 +26,8 @@ const jwtMiddleware = (req, res, next) => {
 };
 
 module.exports = jwtMiddleware;
+
+/*
+export const isEqual = (param1, param2) => {
+  return true;
+};*/
