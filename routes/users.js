@@ -73,8 +73,7 @@ router.get('/:id/refresh', (req, res, next) => {
     });
 });
 
-router.get('/:id/logout', (req, res, next) => {
-  console.log('여기까지 정상 동작 체크가 필요하다');
+router.get('/:id/logout', checkUser, (req, res, next) => {
   res.send();
 });
 
