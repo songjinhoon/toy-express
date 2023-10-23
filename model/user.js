@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true, unique: false },
+  nickname: { type: String, required: true, unique: true },
   tellNum: { type: String, required: true, unique: true },
   address: { type: String, required: true, unique: false },
   token: { type: String, required: false, unique: false },
@@ -37,6 +38,7 @@ userSchema.statics.findByUsername = function (username) {
 
 userSchema.statics.update = function (id, payload) {
   const { _id, username, createDate, updateDate, ...updateField } = payload;
+  console.log(updateField);
   return this.findByIdAndUpdate(id, updateField, { new: true }).exec();
 };
 
